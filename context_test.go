@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"testing"
 	"time"
 
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slog"
 )
 
 func TestContextString(t *testing.T) {
@@ -27,44 +27,18 @@ func TestContextString(t *testing.T) {
 	is.Equal("some string", result)
 }
 
-func TestContextMultipleType(t *testing.T) {
+func TestContextFunc(t *testing.T) { // not comparable
 	t.Parallel()
 
 	is := assert.New(t)
 
-	ctx := context.Background()
-
-	ctx = lo.ContextWith(ctx, "some string")
+	ctx := lo.ContextWith(context.Background(), func() string { return "ok" })
 	is.NotNil(ctx)
 
-	ctx = lo.ContextWith(ctx, time.Date(2023, time.September, 20, 1, 10, 20, 30, time.UTC))
-	is.NotNil(ctx)
-
-	type user struct {
-		id, name string
-	}
-
-	loggedUser := &user{
-		id:   lo.RandomString(10, lo.AlphanumericCharset),
-		name: lo.RandomString(10, lo.AlphanumericCharset),
-	}
-	ctx = lo.ContextWith(ctx, loggedUser)
-	is.NotNil(ctx)
-
-	resultStr, ok := lo.FromContext[string](ctx)
+	result, ok := lo.FromContext[func() string](ctx)
 
 	is.True(ok)
-	is.Equal("some string", resultStr)
-
-	resultTime, ok := lo.FromContext[time.Time](ctx)
-
-	is.True(ok)
-	is.Equal(time.Date(2023, time.September, 20, 1, 10, 20, 30, time.UTC), resultTime)
-
-	result, ok := lo.FromContext[*user](ctx)
-
-	is.True(ok)
-	is.Equal(loggedUser, result)
+	is.Equal("ok", result())
 }
 
 func TestContextCustom(t *testing.T) {
@@ -208,4 +182,52 @@ func TestFromContextOrLoggerDefault(t *testing.T) {
 	is.NotNil(logger)
 
 	logger.Print("testing")
+}
+
+func TestContextMultipleType(t *testing.T) {
+	t.Parallel()
+
+	is := assert.New(t)
+
+	ctx := context.Background()
+
+	ctx = lo.ContextWith(ctx, "some string")
+	is.NotNil(ctx)
+
+	ctx = lo.ContextWith(ctx, time.Date(2023, time.September, 20, 1, 10, 20, 30, time.UTC))
+	is.NotNil(ctx)
+
+	ctx = lo.ContextWith(ctx, func() string { return "ok" })
+	is.NotNil(ctx)
+
+	type user struct {
+		id, name string
+	}
+
+	loggedUser := &user{
+		id:   lo.RandomString(10, lo.AlphanumericCharset),
+		name: lo.RandomString(10, lo.AlphanumericCharset),
+	}
+	ctx = lo.ContextWith(ctx, loggedUser)
+	is.NotNil(ctx)
+
+	resultStr, ok := lo.FromContext[string](ctx)
+
+	is.True(ok)
+	is.Equal("some string", resultStr)
+
+	resultTime, ok := lo.FromContext[time.Time](ctx)
+
+	is.True(ok)
+	is.Equal(time.Date(2023, time.September, 20, 1, 10, 20, 30, time.UTC), resultTime)
+
+	resultUser, ok := lo.FromContext[*user](ctx)
+
+	is.True(ok)
+	is.Equal(loggedUser, resultUser)
+
+	resultFunc, ok := lo.FromContext[func() string](ctx)
+
+	is.True(ok)
+	is.Equal("ok", resultFunc())
 }
