@@ -200,6 +200,9 @@ func TestContextMultipleType(t *testing.T) {
 	ctx = lo.ContextWith(ctx, func() string { return "ok" })
 	is.NotNil(ctx)
 
+	ctx = lo.ContextWith(ctx, map[string]any{"a": "map"})
+	is.NotNil(ctx)
+
 	type user struct {
 		id, name string
 	}
@@ -230,4 +233,9 @@ func TestContextMultipleType(t *testing.T) {
 
 	is.True(ok)
 	is.Equal("ok", resultFunc())
+
+	resultMap, ok := lo.FromContext[map[string]any](ctx)
+
+	is.True(ok)
+	is.Equal(map[string]any{"a": "map"}, resultMap)
 }
