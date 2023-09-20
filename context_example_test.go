@@ -11,9 +11,7 @@ import (
 func ExampleContext() {
 	ctx := context.Background()
 
-	type user struct {
-		id, name string
-	}
+	type user struct{ id, name string }
 
 	ctx = lo.ContextWith(ctx, &user{id: "42", name: "John Doe"})
 
