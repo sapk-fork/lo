@@ -258,6 +258,12 @@ Error handling:
 - [TryCatchWithErrorValue](#trycatchwitherrorvalue)
 - [ErrorsAs](#errorsas)
 
+Supported helpers for context:
+
+- [ContextWith](#contextwith)
+- [FromContext](#fromcontext)
+- [FromContextOr](#fromcontextor)
+
 Constraints:
 
 - Clonable
@@ -2850,6 +2856,35 @@ if rateLimitErr, ok := lo.ErrorsAs[*RateLimitError](err); ok {
 ```
 
 [[play](https://go.dev/play/p/8wk5rH8UfrE)]
+
+
+### ContextWith
+
+Attach an object by type to a context:
+
+```go
+type user struct{ id, name string }
+
+ctx = lo.ContextWith(ctx, &user{id: "42", name: "John Doe"})
+```
+
+### FromContext
+
+Retrieve an object by type from a context:
+
+```go
+userfromContext, found := lo.FromContext[*user](ctx)
+```
+
+### FromContextOr
+
+Retrieve an object by type from a context with a default value if not found.
+
+Example get logger attached to context:
+```go
+logger := lo.FromContextOr[*slog.Logger](ctx, slog.Default())
+```
+
 
 ## 🛩 Benchmark
 

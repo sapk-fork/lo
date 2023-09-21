@@ -2,6 +2,13 @@
 
 @samber: I sometimes forget to update this file. Ping me on [Twitter](https://twitter.com/samuelberthe) or open an issue in case of error. We need to keep a clear changelog for easier lib upgrade.
 
+## 1.39.0 (xxxx-xx-xx)
+
+Adding:
+- lo.ContextWith
+- lo.FromContext
+- lo.FromContextOr
+
 ## 1.38.1 (2023-03-20)
 
 Improvement:
